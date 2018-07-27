@@ -649,7 +649,6 @@ def get_newer_tags(registry, image_name, hours, tags_list):
     return newer_tags
 
 def sort_by_date(registry, image_name, tags_list):
-    print('sorting by date')
     tags_with_date = []
     sorted_list = []
     for tag in tags_list:
