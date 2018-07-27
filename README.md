@@ -94,6 +94,7 @@ Same as above but with layers
 Keep only last 10 versions (useful for CI):
 Delete all tags of all images but keep last 10 tags (you can put this command to your build script
 after building images)
+
 ```
   registry.py -l user:pass -r https://example.com:5000 --delete
 ```
@@ -102,6 +103,11 @@ after building images)
 You can change the number of tags to keep, e.g. 5:
 ```
   registry.py -l user:pass -r https://example.com:5000 --delete --num 5
+```
+
+NOTE that by default images will be sorted by date/timestamp. To sort by tag name (faster but will not necessarily result in most recent tags) use the --sort-by-name argument, e.g.:
+```
+  registry.py -l user:pass -r https://example.com:5000 --delete --num 5 --sort-by-name
 ```
 
 You may also specify tags to be deleted using a list of regexp based names.

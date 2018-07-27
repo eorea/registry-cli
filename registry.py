@@ -493,6 +493,13 @@ for more detail on garbage collection read here:
         action="store_const")
 
     parser.add_argument(
+        '--sort-by-name',
+        help="Will sort tags by name. Default is to sort by date",
+        const=True,
+        default=False,
+        action="store_const")
+
+    parser.add_argument(
         '--layers',
         help=('Show layers digests for all images and all tags'),
         action='store_const',
@@ -609,6 +616,10 @@ def delete_tags_by_age(registry, image_name, dry_run, hours, tags_to_keep):
             tags_to_delete.append(tag)
 
     print('------------deleting-------------')
+    print(tags_to_delete)
+    print(tags_to_keep)
+    print(len(image_tags))
+    print(len(tags_to_delete))
     delete_tags(registry, image_name, dry_run, tags_to_delete, tags_to_keep)
 
 
@@ -634,6 +645,31 @@ def get_newer_tags(registry, image_name, hours, tags_list):
             newer_tags.append(tag)
 
     return newer_tags
+
+def sort_by_date(registry, image_name, tags_list):
+    print('sorting by date')
+    tags_with_date = []
+    sorted_list = []
+    for tag in tags_list:
+        image_config = registry.get_tag_config(image_name, tag)
+
+        if image_config == []:
+            print("tag not found")
+            continue
+
+        image_age = registry.get_image_age(image_name, image_config)
+
+        if image_age == []:
+            print("timestamp not found")
+            continue
+
+        tags_with_date.append({"tag":tag, "age":image_age[:-4]})
+
+    tags_with_date.sort(key=lambda x: dt.strptime(x['age'], "%Y-%m-%dT%H:%M:%S.%f"))
+
+    sorted_list = [x['tag'] for x in tags_with_date]
+
+    return sorted_list
 
 
 def main_loop(args):
@@ -727,8 +763,13 @@ def main_loop(args):
             if args.delete_all:
                 tags_list_to_delete = list(tags_list)
             else:
-                tags_list_to_delete = sorted(tags_list, key=natural_keys)[
-                    :-keep_last_versions]
+                #If argument is specified, sort by name
+                if args.sort_by_name:
+                    tags_list_to_delete = sorted(tags_list, key=natural_keys)[
+                        :-keep_last_versions]
+                else:
+                    tags_list_to_delete = sort_by_date(registry, image_name, tags_list)[
+                        :-keep_last_versions]
 
                 # A manifest might be shared between different tags. Explicitly add those
                 # tags that we want to preserve to the keep_tags list, to prevent
