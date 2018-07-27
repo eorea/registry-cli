@@ -534,6 +534,8 @@ def delete_tags(
         registry, image_name, dry_run, tags_to_delete, tags_to_keep):
 
     keep_tag_digests = []
+    print("Keeping the following tags:")
+    print u", ".join(tags_to_keep)
 
     if tags_to_keep:
         print("Getting digests for tags to keep:")
@@ -715,7 +717,7 @@ def main_loop(args):
     registry.auth_schemes = get_auth_schemes(registry,'/v2/_catalog')
 
     if args.delete:
-        print("Will delete all but {0} last tags".format(keep_last_versions))
+        print("Will delete all but {0} last tags (unless tags are also kept by date or regex)".format(keep_last_versions))
 
     if args.image is not None:
         image_list = args.image
@@ -777,6 +779,7 @@ def main_loop(args):
                 tags_list_to_keep = [
                     tag for tag in tags_list if tag not in tags_list_to_delete]
                 keep_tags.extend(tags_list_to_keep)
+                keep_tags = list(set(keep_tags))
 
             delete_tags(
                 registry, image_name, args.dry_run,
