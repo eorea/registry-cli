@@ -736,7 +736,7 @@ def main_loop(args):
             print("  no tags!")
             continue
 
-        tags_list = get_tags(all_tags_list, image_name, args.tags_like)
+        tags_list = sorted(get_tags(all_tags_list, image_name, args.tags_like), key=natural_keys)
 
         # print(tags and optionally layers
         for tag in tags_list:
