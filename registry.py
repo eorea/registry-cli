@@ -524,8 +524,19 @@ for more detail on garbage collection read here:
         '--digest-method',
         help=('Use HEAD for standard docker registry or GET for NEXUS'),
         default='HEAD',
-        metavar="HEAD|GET"
-    )
+        metavar="HEAD|GET")
+
+    parser.add_argument(
+        '--select-image',
+        help=('Regular expression to select image names. Ignored when -i or --image is used'),
+        nargs='?',
+        metavar="REGEX")
+
+    parser.add_argument(
+        '--exclude-image',
+        help=('Regular expression to exclude image names. Ignored when -i or --image is used'),
+        nargs='?',
+        metavar="REGEX")
 
     return parser.parse_args(args)
 
@@ -723,6 +734,14 @@ def main_loop(args):
         image_list = args.image
     else:
         image_list = registry.list_images()
+
+        if args.select_image is not None:
+            regex = re.compile(args.select_image)
+            image_list[:] = [x for x in image_list if regex.match(x)]
+
+        if args.exclude_image is not None:
+            regex = re.compile(args.exclude_image)
+            image_list[:] = [x for x in image_list if not regex.match(x)]
 
     # loop through registry's images
     # or through the ones given in command line
