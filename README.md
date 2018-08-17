@@ -25,20 +25,20 @@ registry.py is a script for easy manipulation of docker-registry from command li
 You can download ready-made docker image with the script and all python dependencies pre-installed:
 
 ```
-    docker pull anoxis/registry-cli
+    docker pull eorea/registry-cli
 ```
 
-In this case, replace `registry.py` with `docker run --rm anoxis/registry-cli`
+In this case, replace `registry.py` with `docker run --rm eorea/registry-cli`
 in all commands below, e.g.
 ```
-    docker run --rm anoxis/registry-cli -r http://example.com:5000
+    docker run --rm eorea/registry-cli -r http://example.com:5000
 ```
 
 Note: when you use the docker image and registry on the same computer (registry is on localhost), then due to internal network created by docker you have to link to the registry's network and refer registry container by its name, not localhost.
 E.g. your registry container is named "registry",
 then the command to launch registry-cli would be
 ```bash
-    docker run --rm --link registry anoxis/registry-cli -r http://registry:5000
+    docker run --rm --link registry eorea/registry-cli -r http://registry:5000
 ```
 ### python script
 
@@ -72,6 +72,23 @@ List particular image(s) or image:tag (all tags of ubuntu and alpine in this exa
 Same as above but with layers
 ```
   registry.py -l user:pass -r https://example.com:5000 -i ubuntu alpine --layers
+```
+
+### Regular expression to filter image names
+
+Use a regular expression to list all the image names that starts with `ubu` (image names like ubuntu, ubuntu-debootstrap, ubuntu-upstart)
+```
+  registry.py -l user:pass -r https://example.com:5000 --select-image '^ubu.*$' --layers
+```
+
+Use a regular expression to list all images except those that starts with `alp`
+```
+  registry.py -l user:pass -r https://example.com:5000 --exclude-image '^alp.*$' --layers
+```
+
+Use regular expressions to select all images that starts with `open` (image names like openjdk, opensuse, open-library) and exclude those that contains `jdk` (image names opensuse and open-library from the previous example)
+```
+  registry.py -l user:pass -r https://example.com:5000 --select-image '^open.*$' --exclude-image '^.*jdk.*$' --layers
 ```
 
 ## Username and password
